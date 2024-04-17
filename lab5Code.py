@@ -33,26 +33,30 @@ def pylons(k, arr):
 
     return plants
 
-def maximumPeople(p, x, c, y, r):
+def maximumPeople(p, x, c, r):
     n = len(p)
     m = len(c)
-    ans = 0
+    ans = sum(p)  # Initialize the answer with the total population
 
-    for i in range(1 << m):
-        cnt = 0
+    # Loop through each cloud
+    for i in range(m):
         cur = 0
-        for j in range(m):
-            if i & (1 << j):
-                cnt += r[j]
-                for k in range(n):
-                    if abs(x[k] - c[j]) <= r[j]:
-                        cur += p[k]
+        # Calculate the coverage range of the cloud
+        coverage_start = max(0, c[i] - r[i])
+        coverage_end = min(max(x), c[i] + r[i])
+
+        # Loop through each town and check if it's covered by the cloud
         for j in range(n):
-            if abs(x[j] - c[j]) > cnt:
+            if coverage_start <= x[j] <= coverage_end:
                 cur += p[j]
-        ans = max(ans, cur)
+
+        # Remove the current cloud and find the maximum population in sunny towns
+        removed_cloud_population = sum([p[j] for j in range(n) if coverage_start <= x[j] <= coverage_end])
+        ans = max(ans, ans - removed_cloud_population + cur)
 
     return ans
+   
+
 
 def main():
     # Part 1: Min Candies
@@ -67,14 +71,18 @@ def main():
     print("Minimum number of plants required:", result_pylons)
 
     # Part 3: Maximum People
+    # Input
     n = int(input("Enter the number of towns: "))
     p = list(map(int, input("Enter the populations of each town separated by space: ").split()))
     x = list(map(int, input("Enter the locations of the towns separated by space: ").split()))
     m = int(input("Enter the number of clouds: "))
     c = list(map(int, input("Enter the locations of the clouds separated by space: ").split()))
     r = list(map(int, input("Enter the extents of coverage of the clouds separated by space: ").split()))
-    result_maximum_people = maximumPeople(p, x, c, y, r)
+
+    # Output
+    result_maximum_people = maximumPeople(p, x, c, r)
     print("Maximum number of people in sunny towns after removing exactly one cloud:", result_maximum_people)
+
 
 if __name__ == "__main__":
     main()
